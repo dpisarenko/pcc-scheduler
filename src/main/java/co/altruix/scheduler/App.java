@@ -18,17 +18,14 @@ public class App
     public static void main( String[] args )
      throws SchedulerException
     {
-
         SchedulerFactory schedulerFactory = new StdSchedulerFactory();
-
-        Scheduler scheduler = schedulerFactory.getScheduler();
         
-
+        Scheduler scheduler = schedulerFactory.getScheduler();
+       
         long ctime = System.currentTimeMillis(); 
-
+        
         JobDetail jobDetail = 
         	new JobDetail("jobDetail-s1", "jobDetailGroup-s1", SimpleQuartzJob.class);
-
         SimpleTrigger simpleTrigger = 
         	new SimpleTrigger("simpleTrigger", "triggerGroup-s1");
   

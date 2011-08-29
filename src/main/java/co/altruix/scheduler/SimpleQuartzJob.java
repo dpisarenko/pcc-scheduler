@@ -29,7 +29,7 @@ public class SimpleQuartzJob implements Job {
 
 			
 			Persistence perstience = new DefaultPersistence();
-			List<UserData> queryResults = (new Query("from DefaultUserData")).execute();
+			
 			
 		} catch (Exception e) {
 			System.out.println("Error - " + e.toString());

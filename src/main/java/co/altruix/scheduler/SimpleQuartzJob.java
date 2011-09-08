@@ -9,6 +9,9 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
+
+
 
 
 import at.silverstrike.pcc.api.model.UserData;
@@ -26,10 +29,15 @@ public class SimpleQuartzJob implements Job {
 		try {
 			System.out.println("In SimpleQuartzJob - executing its JOB at "
 					+ new Date() + " by " + context.getTrigger().getName());
-
 			
-			Persistence perstience = new DefaultPersistence();
 			
+			Persistence persistence = new DefaultPersistence();
+			List<UserData> users    = persistence.getAllusersWithAutomaticScheduling();			
+			for(UserData user: users){
+				DefaultImmediateSchedulingRequest message = new DefaultImmediateSchedulingRequest();
+				message.setUserId( user.getId() );
+				
+			}
 			
 		} catch (Exception e) {
 			System.out.println("Error - " + e.toString());

@@ -89,6 +89,11 @@
 			<artifactId>pcc-cdm</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-core</artifactId>
+			<version>5.5.0</version>
+		</dependency>
 	</dependencies>
 
 

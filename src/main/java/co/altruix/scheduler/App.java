@@ -33,8 +33,8 @@ public class App
        
         simpleTrigger.setRepeatInterval(10000);
 
-        simpleTrigger.setRepeatCount(-1);
-
+        simpleTrigger.setRepeatCount(-1);        
+        
         scheduler.scheduleJob(jobDetail, simpleTrigger);
 
         scheduler.start();

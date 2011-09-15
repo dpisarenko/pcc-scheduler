@@ -12,7 +12,6 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -20,14 +19,9 @@ import org.quartz.JobExecutionException;
 
 import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
 
-
-
-
 import at.silverstrike.pcc.api.model.UserData;
 import at.silverstrike.pcc.api.persistence.Persistence;
 import at.silverstrike.pcc.impl.persistence.DefaultPersistence;
-
-
 
 public class SimpleQuartzJob implements Job {
 
@@ -37,24 +31,29 @@ public class SimpleQuartzJob implements Job {
 	public void execute(JobExecutionContext context) {
 		try {
 			System.out.println("In SimpleQuartzJob - executing its JOB at "
-					+ new Date() + " by " + context.getTrigger().getName());			
-			
+					+ new Date() + " by " + context.getTrigger().getName());
+
 			Persistence persistence = new DefaultPersistence();
-			persistence.openSession(Persistence.HOST_LOCAL, null, null, Persistence.DB_PRODUCTION);
-			List<UserData> users    = persistence.getAllusersWithAutomaticScheduling();	            
+			persistence.openSession(Persistence.HOST_LOCAL, null, null,
+					Persistence.DB_PRODUCTION);
 			
-			for(UserData user: users){
-				DefaultImmediateSchedulingRequest message = new DefaultImmediateSchedulingRequest();
-				message.setUserId( user.getId() );
+			List<UserData> users = persistence
+					.getAllusersWithAutomaticScheduling();
+			if (users.size() != 0) {
 				
-				this.requestMessage(message);
-			}			
+				for (UserData user : users) {
+					DefaultImmediateSchedulingRequest message = new DefaultImmediateSchedulingRequest();
+					message.setUserId(user.getId());
+					this.requestMessage(message);
+				}
+			}
+			persistence.closeSession();
 		} catch (Exception e) {
 			System.out.println("Error - " + e.toString());
 		}
 	}
-	
-	private void requestMessage(DefaultImmediateSchedulingRequest message){
+
+	private void requestMessage(DefaultImmediateSchedulingRequest message) {
 		Session session = null;
 		javax.jms.Connection connection = null;
 		try {
@@ -92,7 +91,7 @@ public class SimpleQuartzJob implements Job {
 				try {
 					session.close();
 				} catch (final JMSException exception) {
-					
+
 				}
 			}
 
@@ -100,11 +99,10 @@ public class SimpleQuartzJob implements Job {
 				try {
 					connection.close();
 				} catch (final JMSException exception) {
-					
+
 				}
 			}
-		}		
+		}
 	}
-	
-	
+
 }

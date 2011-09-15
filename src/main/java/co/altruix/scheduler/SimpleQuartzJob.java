@@ -37,17 +37,18 @@ public class SimpleQuartzJob implements Job {
 	public void execute(JobExecutionContext context) {
 		try {
 			System.out.println("In SimpleQuartzJob - executing its JOB at "
-					+ new Date() + " by " + context.getTrigger().getName());
-			
+					+ new Date() + " by " + context.getTrigger().getName());			
 			
 			Persistence persistence = new DefaultPersistence();
-			List<UserData> users    = persistence.getAllusersWithAutomaticScheduling();			
+			persistence.openSession(Persistence.HOST_LOCAL, null, null, Persistence.DB_PRODUCTION);
+			List<UserData> users    = persistence.getAllusersWithAutomaticScheduling();	            
+			
 			for(UserData user: users){
 				DefaultImmediateSchedulingRequest message = new DefaultImmediateSchedulingRequest();
 				message.setUserId( user.getId() );
+				
 				this.requestMessage(message);
-			}
-			
+			}			
 		} catch (Exception e) {
 			System.out.println("Error - " + e.toString());
 		}
@@ -76,12 +77,6 @@ public class SimpleQuartzJob implements Job {
 					.createProducer(destination);
 			producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-			final UserData user = (UserData) TPTApplication
-					.getCurrentApplication().getUser();
-
-			LOGGER.debug("Message with user ID {}", user.getId());
-
-
 			final ObjectMessage objectMessage = session
 					.createObjectMessage(message);
 			producer.send(objectMessage);
@@ -91,13 +86,13 @@ public class SimpleQuartzJob implements Job {
 			connection.close();
 
 		} catch (final JMSException exception) {
-			LOGGER.error("", exception);
+
 		} finally {
 			if (session != null) {
 				try {
 					session.close();
 				} catch (final JMSException exception) {
-					LOGGER.error("", exception);
+					
 				}
 			}
 
@@ -105,7 +100,7 @@ public class SimpleQuartzJob implements Job {
 				try {
 					connection.close();
 				} catch (final JMSException exception) {
-					LOGGER.error("", exception);
+					
 				}
 			}
 		}		

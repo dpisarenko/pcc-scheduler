@@ -1,19 +1,22 @@
 package co.altruix.scheduler;
 
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Date;
 import java.util.Properties;
 
 import javax.jms.Session;
 
 import org.apache.commons.io.IOUtils;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
-import org.quartz.SimpleTrigger;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +26,16 @@ import ru.altruix.commons.api.di.PccException;
 import at.silverstrike.pcc.api.persistence.Persistence;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializer;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializerFactory;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
+import co.altruix.scheduler.api.scheduledrecalculation.ScheduledRecalculationJob;
 import co.altruix.scheduler.impl.di.DefaultPccSchedulerInjectorFactory;
+import co.altruix.scheduler.impl.scheduledrecalculation.DefaultScheduledRecalculationJob;
 
 import com.google.inject.Injector;
 
 public final class PccSchedulerApp {
+    private static final String PCC_RECALCULATION = "pcc-recalculation-job";
     private static final String CONFIG_FILE = "conf.properties";
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PccSchedulerApp.class);
@@ -43,44 +51,54 @@ public final class PccSchedulerApp {
             persistence.openSession(Persistence.HOST_LOCAL, null, null,
                     Persistence.DB_PRODUCTION);
 
-            
             final String brokerUrl = config.getProperty("brokerUrl");
             final String username = config.getProperty("username");
             final String password = config.getProperty("password");
 
-//            final MqInfrastructureInitializer mqInitializer =
-//                    initMq(injector, brokerUrl, username, password);
+            final MqInfrastructureInitializer mqInitializer =
+                    initMq(injector, brokerUrl, username, password);
 
-//            final Session session = mqInitializer.getSession();
-
+            final Session session = mqInitializer.getSession();
             
+            final OutgoingQueueChannelFactory factory = injector.getInstance(OutgoingQueueChannelFactory.class);
+            final OutgoingQueueChannel channel = factory.create();
             
-            SchedulerFactory schedulerFactory = new StdSchedulerFactory();
+            channel.setChannelName("scheduler2workerQueueName");
+            channel.setChannelName(config.getProperty("scheduler2workerQueueName"));
+            channel.setSession(session);
+            
+            final Scheduler scheduler =
+                    StdSchedulerFactory.getDefaultScheduler();
 
-            Scheduler scheduler = schedulerFactory.getScheduler();
+            final JobDetail job =
+                    JobBuilder.newJob(DefaultScheduledRecalculationJob.class)
+                            .withIdentity(PCC_RECALCULATION).build();
 
-            long ctime = System.currentTimeMillis();
-
-//            JobDetail jobDetail =
-//                    new JobDetail("jobDetail-s1", "jobDetailGroup-s1",
-//                            SimpleQuartzJob.class);
-//            SimpleTrigger simpleTrigger =
-//                    new SimpleTrigger("simpleTrigger", "triggerGroup-s1");
-//
-//            simpleTrigger.setStartTime(new Date(ctime));
-//
-//            simpleTrigger.setRepeatInterval(10000);
-//
-//            simpleTrigger.setRepeatCount(-1);
-//
-//            scheduler.scheduleJob(jobDetail, simpleTrigger);
-//
-//            scheduler.start();
-
+            final JobDataMap jobDataMap = new JobDataMap();
+            
+            jobDataMap.put(ScheduledRecalculationJob.INJECTOR, injector);
+            jobDataMap.put(ScheduledRecalculationJob.CHANNEL, channel);
+            jobDataMap.put(ScheduledRecalculationJob.SESSION, session);
+            
+            final Trigger trigger =
+                    TriggerBuilder
+                            .newTrigger()
+                            .withIdentity("pcc-recalculation-trigger")
+                            .usingJobData(jobDataMap)
+                            .startNow()
+                            .withSchedule(
+                                    simpleSchedule()
+                                            .withIntervalInMinutes(5)
+                                            .repeatForever()).build();
+            scheduler.scheduleJob(job, trigger);
+            scheduler.start();
         } catch (final SchedulerException exception) {
-
+            LOGGER.error("", exception);
+        } catch (final PccException exception) {
+            LOGGER.error("", exception);
         }
     }
+
     private MqInfrastructureInitializer initMq(final Injector aInjector,
             final String aBrokerUrl, final String aUsername,
             final String aPassword)

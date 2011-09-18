@@ -11,18 +11,25 @@
 
 package co.altruix.scheduler.impl.di;
 
+import at.silverstrike.pcc.api.persistence.Persistence;
+import at.silverstrike.pcc.impl.persistence.DefaultPersistence;
+
+import co.altruix.pcc.api.mq.MqInfrastructureInitializerFactory;
+import co.altruix.pcc.impl.mq.DefaultMqInfrastructureInitializerFactory;
+
 import com.google.inject.AbstractModule;
 
 /**
  * @author DP118M
- *
+ * 
  */
 class InjectorModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // TODO Auto-generated method stub
-        
+        bind(Persistence.class).toInstance(new DefaultPersistence());
+        bind(MqInfrastructureInitializerFactory.class).toInstance(
+                new DefaultMqInfrastructureInitializerFactory());
     }
 
 }

@@ -11,6 +11,7 @@
 
 package co.altruix.scheduler.impl.di;
 
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import co.altruix.scheduler.api.di.PccSchedulerInjectorFactory;
@@ -24,8 +25,11 @@ public class DefaultPccSchedulerInjectorFactory implements
 
     @Override
     public Injector createInjector() {
-        // TODO Auto-generated method stub
-        return null;
+        final InjectorModule injectorModule = new InjectorModule();
+        final Injector injector = Guice.createInjector(injectorModule);
+
+        return injector;
+
     }
 
 }

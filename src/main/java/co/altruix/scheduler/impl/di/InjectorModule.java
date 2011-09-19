@@ -15,7 +15,9 @@ import at.silverstrike.pcc.api.persistence.Persistence;
 import at.silverstrike.pcc.impl.persistence.DefaultPersistence;
 
 import co.altruix.pcc.api.mq.MqInfrastructureInitializerFactory;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
 import co.altruix.pcc.impl.mq.DefaultMqInfrastructureInitializerFactory;
+import co.altruix.pcc.impl.outgoingqueuechannel.DefaultOutgoingQueueChannelFactory;
 
 import com.google.inject.AbstractModule;
 
@@ -30,6 +32,8 @@ class InjectorModule extends AbstractModule {
         bind(Persistence.class).toInstance(new DefaultPersistence());
         bind(MqInfrastructureInitializerFactory.class).toInstance(
                 new DefaultMqInfrastructureInitializerFactory());
+        bind(OutgoingQueueChannelFactory.class).toInstance(
+                new DefaultOutgoingQueueChannelFactory());
     }
 
 }

@@ -9,7 +9,7 @@
  *
  **/
 
-package co.altruix.scheduler.api.di;
+package co.altruix.scheduler.di;
 
 import junit.framework.Assert;
 
@@ -18,6 +18,7 @@ import org.junit.Test;
 import ru.altruix.commons.api.di.InjectorFactory;
 import at.silverstrike.pcc.api.persistence.Persistence;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializerFactory;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
 import co.altruix.scheduler.impl.di.DefaultPccSchedulerInjectorFactory;
 
 import com.google.inject.ConfigurationException;
@@ -39,6 +40,7 @@ public class TestPccSchedulerInjectorFactory {
         try {
             injector.getInstance(Persistence.class);
             injector.getInstance(MqInfrastructureInitializerFactory.class);
+            injector.getInstance(OutgoingQueueChannelFactory.class);
         } catch (final ConfigurationException exception) {
             Assert.fail(exception.getMessage());
         }

@@ -36,6 +36,7 @@ import co.altruix.scheduler.impl.scheduledrecalculation.DefaultScheduledRecalcul
 import com.google.inject.Injector;
 
 public final class PccSchedulerApp {
+    private static final int DEFAULT_INTERVAL = 5;
     private static final String PCC_RECALCULATION = "pcc-recalculation-job";
     private static final String CONFIG_FILE = "conf.properties";
     private static final Logger LOGGER = LoggerFactory
@@ -60,28 +61,35 @@ public final class PccSchedulerApp {
                     initMq(injector, brokerUrl, username, password);
 
             final Session session = mqInitializer.getSession();
-            
-            final OutgoingQueueChannelFactory factory = injector.getInstance(OutgoingQueueChannelFactory.class);
+
+            final OutgoingQueueChannelFactory factory =
+                    injector.getInstance(OutgoingQueueChannelFactory.class);
             final OutgoingQueueChannel channel = factory.create();
-            
+
             channel.setChannelName("scheduler2workerQueueName");
-            channel.setQueueName(config.getProperty("scheduler2workerQueueName"));
+            channel.setQueueName(config
+                    .getProperty("scheduler2workerQueueName"));
             channel.setSession(session);
             channel.init();
-            
+
             final Scheduler scheduler =
                     StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
-            
-            
-            
+
             final JobDetail job =
                     JobBuilder.newJob(DefaultScheduledRecalculationJob.class)
                             .withIdentity(PCC_RECALCULATION).build();
 
             final JobDataMap jobDataMap =
-                    getJobDataMap(injector, session, channel);            
-            
+                    getJobDataMap(injector, session, channel);
+
+            int intervalInMinutes;
+            final String intervalInMinutesAsString =
+                    config.getProperty("intervalInMinutes");
+
+            intervalInMinutes =
+                    getIntervalInMinutes(intervalInMinutesAsString);
+
             final Trigger trigger =
                     TriggerBuilder
                             .newTrigger()
@@ -90,10 +98,11 @@ public final class PccSchedulerApp {
                             .startNow()
                             .withSchedule(
                                     simpleSchedule()
-                                            .withIntervalInMinutes(5)
+                                            .withIntervalInMinutes(
+                                                    intervalInMinutes)
                                             .repeatForever()).build();
             scheduler.scheduleJob(job, trigger);
-            
+
         } catch (final SchedulerException exception) {
             LOGGER.error("", exception);
         } catch (final PccException exception) {
@@ -101,17 +110,33 @@ public final class PccSchedulerApp {
         }
     }
 
+    private int getIntervalInMinutes(final String intervalInMinutesAsString) {
+        int intervalInMinutes;
+        try {
+            intervalInMinutes = Integer.parseInt(intervalInMinutesAsString);
+        } catch (final NumberFormatException exception) {
+            intervalInMinutes = DEFAULT_INTERVAL;
+            LOGGER.error(
+                    "Cannot parse intervalInMinutes '{}' as number. Using default interval ({} minutes)",
+                    new Object[] { intervalInMinutesAsString,
+                            DEFAULT_INTERVAL });
+        }
+        return intervalInMinutes;
+    }
+
     private JobDataMap getJobDataMap(final Injector injector,
             final Session session, final OutgoingQueueChannel channel)
             throws PccException {
-        final JobDataMapCreatorFactory jobDataMapCreatorFactory = injector.getInstance(JobDataMapCreatorFactory.class);
-        final JobDataMapCreator jobDataMapCreator = jobDataMapCreatorFactory.create();
-        
+        final JobDataMapCreatorFactory jobDataMapCreatorFactory =
+                injector.getInstance(JobDataMapCreatorFactory.class);
+        final JobDataMapCreator jobDataMapCreator =
+                jobDataMapCreatorFactory.create();
+
         jobDataMapCreator.setChannel(channel);
         jobDataMapCreator.setInjector(injector);
         jobDataMapCreator.setSession(session);
         jobDataMapCreator.run();
-        
+
         final JobDataMap jobDataMap = jobDataMapCreator.getJobDataMap();
         return jobDataMap;
     }

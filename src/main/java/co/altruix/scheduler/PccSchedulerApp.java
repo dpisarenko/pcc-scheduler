@@ -65,7 +65,7 @@ public final class PccSchedulerApp {
             final OutgoingQueueChannel channel = factory.create();
             
             channel.setChannelName("scheduler2workerQueueName");
-            channel.setChannelName(config.getProperty("scheduler2workerQueueName"));
+            channel.setQueueName(config.getProperty("scheduler2workerQueueName"));
             channel.setSession(session);
             channel.init();
             

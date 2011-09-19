@@ -27,9 +27,10 @@ import com.google.inject.Injector;
 
 /**
  * @author DP118M
- *
+ * 
  */
 public class TestPccSchedulerInjectorFactory {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void test() {
         final InjectorFactory injectorFactory =
@@ -38,11 +39,17 @@ public class TestPccSchedulerInjectorFactory {
 
         Assert.assertNotNull(injector);
 
+        final Class[] classes =
+                new Class[] { Persistence.class,
+                        MqInfrastructureInitializerFactory.class,
+                        OutgoingQueueChannelFactory.class,
+                        JobDataMapCreatorFactory.class,
+                        JobDataMapCreatorFactory.class };
+
         try {
-            injector.getInstance(Persistence.class);
-            injector.getInstance(MqInfrastructureInitializerFactory.class);
-            injector.getInstance(OutgoingQueueChannelFactory.class);
-            injector.getInstance(JobDataMapCreatorFactory.class);
+            for (final Class clazz : classes) {
+                injector.getInstance(clazz);
+            }
         } catch (final ConfigurationException exception) {
             Assert.fail(exception.getMessage());
         }

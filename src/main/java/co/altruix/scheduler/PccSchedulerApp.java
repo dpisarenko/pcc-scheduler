@@ -30,7 +30,6 @@ import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
 import co.altruix.scheduler.api.jobdatamapcreator.JobDataMapCreator;
 import co.altruix.scheduler.api.jobdatamapcreator.JobDataMapCreatorFactory;
-import co.altruix.scheduler.api.scheduledrecalculation.ScheduledRecalculationJob;
 import co.altruix.scheduler.impl.di.DefaultPccSchedulerInjectorFactory;
 import co.altruix.scheduler.impl.scheduledrecalculation.DefaultScheduledRecalculationJob;
 
@@ -71,7 +70,7 @@ public final class PccSchedulerApp {
             
             final Scheduler scheduler =
                     StdSchedulerFactory.getDefaultScheduler();
-
+            scheduler.start();
             
             
             
@@ -93,7 +92,7 @@ public final class PccSchedulerApp {
                                             .withIntervalInMinutes(5)
                                             .repeatForever()).build();
             scheduler.scheduleJob(job, trigger);
-            scheduler.start();
+            
         } catch (final SchedulerException exception) {
             LOGGER.error("", exception);
         } catch (final PccException exception) {

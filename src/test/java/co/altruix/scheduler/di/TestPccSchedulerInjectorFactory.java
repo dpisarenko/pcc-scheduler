@@ -19,6 +19,7 @@ import ru.altruix.commons.api.di.InjectorFactory;
 import at.silverstrike.pcc.api.persistence.Persistence;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializerFactory;
 import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
+import co.altruix.scheduler.api.jobdatamapcreator.JobDataMapCreatorFactory;
 import co.altruix.scheduler.impl.di.DefaultPccSchedulerInjectorFactory;
 
 import com.google.inject.ConfigurationException;
@@ -41,6 +42,7 @@ public class TestPccSchedulerInjectorFactory {
             injector.getInstance(Persistence.class);
             injector.getInstance(MqInfrastructureInitializerFactory.class);
             injector.getInstance(OutgoingQueueChannelFactory.class);
+            injector.getInstance(JobDataMapCreatorFactory.class);
         } catch (final ConfigurationException exception) {
             Assert.fail(exception.getMessage());
         }

@@ -28,6 +28,8 @@ import co.altruix.pcc.api.mq.MqInfrastructureInitializer;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializerFactory;
 import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
+import co.altruix.scheduler.api.jobdatamapcreator.JobDataMapCreator;
+import co.altruix.scheduler.api.jobdatamapcreator.JobDataMapCreatorFactory;
 import co.altruix.scheduler.api.scheduledrecalculation.ScheduledRecalculationJob;
 import co.altruix.scheduler.impl.di.DefaultPccSchedulerInjectorFactory;
 import co.altruix.scheduler.impl.scheduledrecalculation.DefaultScheduledRecalculationJob;
@@ -70,15 +72,15 @@ public final class PccSchedulerApp {
             final Scheduler scheduler =
                     StdSchedulerFactory.getDefaultScheduler();
 
+            
+            
+            
             final JobDetail job =
                     JobBuilder.newJob(DefaultScheduledRecalculationJob.class)
                             .withIdentity(PCC_RECALCULATION).build();
 
-            final JobDataMap jobDataMap = new JobDataMap();
-            
-            jobDataMap.put(ScheduledRecalculationJob.INJECTOR, injector);
-            jobDataMap.put(ScheduledRecalculationJob.CHANNEL, channel);
-            jobDataMap.put(ScheduledRecalculationJob.SESSION, session);
+            final JobDataMap jobDataMap =
+                    getJobDataMap(injector, session, channel);            
             
             final Trigger trigger =
                     TriggerBuilder
@@ -97,6 +99,21 @@ public final class PccSchedulerApp {
         } catch (final PccException exception) {
             LOGGER.error("", exception);
         }
+    }
+
+    private JobDataMap getJobDataMap(final Injector injector,
+            final Session session, final OutgoingQueueChannel channel)
+            throws PccException {
+        final JobDataMapCreatorFactory jobDataMapCreatorFactory = injector.getInstance(JobDataMapCreatorFactory.class);
+        final JobDataMapCreator jobDataMapCreator = jobDataMapCreatorFactory.create();
+        
+        jobDataMapCreator.setChannel(channel);
+        jobDataMapCreator.setInjector(injector);
+        jobDataMapCreator.setSession(session);
+        jobDataMapCreator.run();
+        
+        final JobDataMap jobDataMap = jobDataMapCreator.getJobDataMap();
+        return jobDataMap;
     }
 
     private MqInfrastructureInitializer initMq(final Injector aInjector,

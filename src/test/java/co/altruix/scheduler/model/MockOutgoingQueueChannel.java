@@ -9,7 +9,7 @@
  *
  **/
 
-package co.altruix.scheduler.jobdatamapcreator;
+package co.altruix.scheduler.model;
 
 import javax.jms.Message;
 import javax.jms.Session;
@@ -21,7 +21,7 @@ import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
  * @author DP118M
  *
  */
-final class MockOutgoingQueueChannel implements OutgoingQueueChannel {
+public final class MockOutgoingQueueChannel implements OutgoingQueueChannel {
 
     @Override
     public Session getSession() {

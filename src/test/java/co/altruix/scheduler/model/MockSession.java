@@ -9,7 +9,7 @@
  *
  **/
 
-package co.altruix.scheduler.jobdatamapcreator;
+package co.altruix.scheduler.model;
 
 import java.io.Serializable;
 
@@ -36,7 +36,7 @@ import javax.jms.TopicSubscriber;
  * @author DP118M
  *
  */
-final class MockSession implements Session {
+public final class MockSession implements Session {
 
     @Override
     public void close() throws JMSException {

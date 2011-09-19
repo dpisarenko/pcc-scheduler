@@ -30,6 +30,8 @@ import co.altruix.scheduler.api.jobdatamapcreator.JobDataMapCreatorFactory;
 import co.altruix.scheduler.api.scheduledrecalculation.ScheduledRecalculationJob;
 import co.altruix.scheduler.impl.di.DefaultPccSchedulerInjectorFactory;
 import co.altruix.scheduler.impl.jobdatamapcreator.DefaultJobDataMapCreatorFactory;
+import co.altruix.scheduler.model.MockOutgoingQueueChannel;
+import co.altruix.scheduler.model.MockSession;
 
 /**
  * @author DP118M

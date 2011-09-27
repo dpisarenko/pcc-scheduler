@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.altruix.commons.api.di.PccException;
+import ru.altruix.commons.impl.uncaughtexceptions.UncaughtExceptionHandler;
 
 import at.silverstrike.pcc.api.persistence.Persistence;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializer;
@@ -43,6 +44,14 @@ public final class PccSchedulerApp {
             .getLogger(PccSchedulerApp.class);
 
     public void run() {
+        /**
+         * Make sure that uncaught exceptions are logged (start)
+         */
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler());
+        /**
+         * Make sure that uncaught exceptions are logged (end)
+         */
+        
         try {
             final Properties config = readConfig();
 

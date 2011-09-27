@@ -40,6 +40,22 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>co.altruix.scheduler.PccSchedulerApp</mainClass>
+						</manifest>
+					</archive>
+
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+			
 		</plugins>
 	</build>
 
@@ -97,9 +113,6 @@
 				<artifactId>maven-pmd-plugin</artifactId>
 				<configuration>
 					<targetJdk>1.6</targetJdk>
-					<excludes>
-						<exclude>**/at/silverstrike/pcc/impl/tj3bookingsparser/grammar/Bookings*er.java</exclude>
-					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -108,7 +121,6 @@
 				<version>2.6</version>
 				<configuration>
 					<configLocation>pcc-checkstyle.xml</configLocation>
-					<excludes>**/at/silverstrike/pcc/impl/tj3bookingsparser/grammar/Bookings*er.java</excludes>
 					<includeTestSourceDirectory>true</includeTestSourceDirectory>
 				</configuration>
 			</plugin>
@@ -139,7 +151,7 @@
 				<configuration>
 					<inputEncoding>UTF-8</inputEncoding>
 					<outputEncoding>UTF-8</outputEncoding>
-					<locales>en,ru</locales>
+					<locales>en</locales>
 				</configuration>
 			</plugin>
 			<plugin>
